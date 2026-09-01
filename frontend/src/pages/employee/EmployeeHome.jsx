@@ -3,8 +3,11 @@ import AppShell from '../../layouts/AppShell'
 import { employeeNav } from '../../config/navigation'
 import PageHeader from '../../components/dashboard/PageHeader'
 import EmptyState from '../../components/ui/EmptyState'
+import { useOverview } from '../../hooks/useOverview'
 
 export default function EmployeeHome() {
+  const { data } = useOverview()
+  const progress = data?.gamification
   const quickActions = [
     { label: 'Explore CSR', description: 'Find activities to support', icon: HandHeart, tone: 'bg-blue-50 text-blue-700' },
     { label: 'View policies', description: 'Read assigned policies', icon: ScrollText, tone: 'bg-violet-50 text-violet-700' },
@@ -20,7 +23,7 @@ export default function EmployeeHome() {
         <div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
           <div><span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-emerald-100"><Sparkles size={13} />Your impact journey</span><h2 className="mt-4 text-2xl font-semibold tracking-[-0.035em]">Ready when you are.</h2><p className="mt-2 max-w-lg text-sm leading-6 text-white/65">Your verified XP, badges, and participation will appear as you complete approved activities.</p></div>
           <div className="grid min-w-[260px] grid-cols-3 gap-2">
-            {[['XP', '0'], ['Badges', '0'], ['Activities', '0']].map(([label, value]) => <div key={label} className="rounded-xl border border-white/10 bg-white/8 p-3 text-center"><p className="text-xl font-bold">{value}</p><p className="mt-1 text-[10px] uppercase tracking-wide text-white/50">{label}</p></div>)}
+            {[["XP", progress?.xp ?? 0], ["Badges", progress?.badges?.length ?? 0], ["Activities", progress?.participations?.length ?? 0]].map(([label, value]) => <div key={label} className="rounded-xl border border-white/10 bg-white/8 p-3 text-center"><p className="text-xl font-bold">{value}</p><p className="mt-1 text-[10px] uppercase tracking-wide text-white/50">{label}</p></div>)}
           </div>
         </div>
       </section>

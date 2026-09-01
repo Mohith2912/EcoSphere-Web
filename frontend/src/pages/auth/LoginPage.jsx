@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, BarChart3, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, ShieldCheck } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Logo from '../../components/brand/Logo'
 import { login } from '../../api/auth'
 
@@ -18,9 +18,9 @@ export default function LoginPage() {
     try {
       const response = await login({ email: form.get('email'), password: form.get('password') })
       if (response?.accessToken) window.localStorage.setItem('ecosphere_access_token', response.accessToken)
-      navigate(response?.experience === 'organization' ? '/org/dashboard' : '/app/dashboard')
-    } catch {
-      setError('Authentication service is not connected yet. Use a frontend preview below.')
+      navigate(response?.defaultRoute || '/app/dashboard')
+    } catch (requestError) {
+      setError(requestError.message || 'Sign-in failed. Check your credentials and try again.')
     } finally {
       setLoading(false)
     }
@@ -55,14 +55,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-7 border-t border-line pt-6">
-            <p className="text-center text-[11px] font-bold uppercase tracking-[0.12em] text-ink-600">Frontend preview</p>
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <Link to="/org/dashboard" className="rounded-xl border border-line bg-white px-3 py-3 text-center text-xs font-semibold text-ink-800 hover:border-forest-100 hover:bg-forest-50">Organization console</Link>
-              <Link to="/app/dashboard" className="rounded-xl border border-line bg-white px-3 py-3 text-center text-xs font-semibold text-ink-800 hover:border-forest-100 hover:bg-forest-50">Employee portal</Link>
-            </div>
-            <p className="mt-4 text-center text-xs text-ink-600">Need access? Contact your organization administrator.</p>
-          </div>
+          <p className="mt-7 border-t border-line pt-6 text-center text-xs text-ink-600">Need access? Contact your organization administrator.</p>
         </div>
       </section>
 

@@ -50,7 +50,7 @@ function createApp(container) {
     if (req.auth.permissions['social.view']?.length) data.social = await container.social.dashboard(req.auth);
     if (req.auth.permissions['governance.view']?.length) data.governance = await container.governance.dashboard(req.auth);
     if (req.auth.permissions['gamification.view']?.length) data.gamification = await container.gamification.myProgress(req.auth);
-    res.json({ data, esg: { overallScore: null, status: 'NOT_CALCULATED', message: 'Not Calculated — module scores or approved scoring weights are unavailable.' } });
+    res.json({ data: { ...data, esg: { overallScore: null, status: 'NOT_CALCULATED', message: 'Not Calculated — module scores or approved scoring weights are unavailable.' } } });
   }));
   app.use(notFoundHandler);
   app.use(errorHandler);

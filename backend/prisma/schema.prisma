@@ -1,0 +1,466 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String       @id @default(uuid()) @db.Char(36)
+  name        String
+  code        String       @unique
+  status      String       @default("ACTIVE")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  users       User[]
+  departments Department[]
+}
+
+model Department {
+  id             String       @id @default(uuid()) @db.Char(36)
+  organizationId String       @db.Char(36)
+  name           String
+  code           String
+  status         String       @default("ACTIVE")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  users          User[]
+
+  @@unique([organizationId, code])
+}
+
+model User {
+  id             String       @id @default(uuid()) @db.Char(36)
+  organizationId String       @db.Char(36)
+  departmentId   String?      @db.Char(36)
+  employeeId     String?
+  email          String
+  passwordHash   String
+  firstName      String
+  lastName       String
+  status         String       @default("ACTIVE")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  department     Department?  @relation(fields: [departmentId], references: [id])
+  userRoles      UserRole[]
+
+  @@unique([organizationId, email])
+  @@unique([organizationId, employeeId])
+}
+
+model Role {
+  id              String           @id @default(uuid()) @db.Char(36)
+  organizationId  String           @db.Char(36)
+  code            String
+  name            String
+  status          String           @default("ACTIVE")
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@unique([organizationId, code])
+}
+
+model Permission {
+  id              String           @id @default(uuid()) @db.Char(36)
+  organizationId  String           @db.Char(36)
+  code            String
+  name            String
+  rolePermissions RolePermission[]
+
+  @@unique([organizationId, code])
+}
+
+model RolePermission {
+  id           String     @id @default(uuid()) @db.Char(36)
+  roleId       String     @db.Char(36)
+  permissionId String     @db.Char(36)
+  scope        String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId, scope])
+}
+
+model UserRole {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  userId         String   @db.Char(36)
+  roleId         String   @db.Char(36)
+  scope          String
+  status         String   @default("ACTIVE")
+  assignedById   String?  @db.Char(36)
+  assignedAt     DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           Role     @relation(fields: [roleId], references: [id])
+
+  @@unique([organizationId, userId, roleId, scope])
+}
+
+model Category {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  name           String
+  type           String
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, type, name])
+}
+
+model EmissionFactor {
+  id             String    @id @default(uuid()) @db.Char(36)
+  organizationId String    @db.Char(36)
+  activityType   String
+  unit           String
+  co2ePerUnit    Decimal   @db.Decimal(20, 8)
+  source         String?
+  effectiveFrom  DateTime?
+  effectiveTo    DateTime?
+  status         String    @default("ACTIVE")
+  createdById    String?   @db.Char(36)
+  updatedById    String?   @db.Char(36)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model CarbonTransaction {
+  id                 String   @id @default(uuid()) @db.Char(36)
+  organizationId     String   @db.Char(36)
+  departmentId       String?  @db.Char(36)
+  emissionFactorId   String   @db.Char(36)
+  activityType       String
+  unit               String
+  activityAmount     Decimal  @db.Decimal(20, 6)
+  calculatedCo2e     Decimal  @db.Decimal(20, 6)
+  occurredAt         DateTime
+  source             String
+  verificationStatus String
+  createdById        String   @db.Char(36)
+  evidenceUrl        String?
+  reference          String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([organizationId, departmentId, occurredAt])
+}
+
+model EnvironmentalGoal {
+  id             String    @id @default(uuid()) @db.Char(36)
+  organizationId String    @db.Char(36)
+  departmentId   String?   @db.Char(36)
+  title          String
+  metric         String
+  targetValue    Decimal   @db.Decimal(20, 6)
+  currentValue   Decimal   @default(0) @db.Decimal(20, 6)
+  targetDate     DateTime?
+  status         String    @default("ACTIVE")
+  createdById    String?   @db.Char(36)
+  updatedById    String?   @db.Char(36)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model ProductEsgProfile {
+  id                      String   @id @default(uuid()) @db.Char(36)
+  organizationId          String   @db.Char(36)
+  productName             String
+  productReference        String?
+  classification          String?
+  calculatedCo2e          Decimal? @db.Decimal(20, 6)
+  environmentalAttributes Json?
+  metadata                Json?
+  status                  String   @default("ACTIVE")
+  createdById             String?  @db.Char(36)
+  updatedById             String?  @db.Char(36)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model CsrActivity {
+  id               String             @id @default(uuid()) @db.Char(36)
+  organizationId   String             @db.Char(36)
+  title            String
+  description      String             @db.Text
+  categoryId       String?            @db.Char(36)
+  departmentId     String?            @db.Char(36)
+  startsAt         DateTime?
+  endsAt           DateTime?
+  location         String?
+  evidenceRequired Boolean
+  xpAward          Decimal            @default(0)
+  pointsAward      Decimal            @default(0)
+  status           String
+  createdById      String?            @db.Char(36)
+  updatedById      String?            @db.Char(36)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  participations   CsrParticipation[]
+}
+
+model CsrParticipation {
+  id             String      @id @default(uuid()) @db.Char(36)
+  organizationId String      @db.Char(36)
+  activityId     String      @db.Char(36)
+  userId         String      @db.Char(36)
+  departmentId   String?     @db.Char(36)
+  evidenceUrl    String?
+  notes          String?     @db.Text
+  status         String
+  submittedAt    DateTime
+  reviewedById   String?     @db.Char(36)
+  reviewedAt     DateTime?
+  reviewNote     String?
+  completionDate DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  activity       CsrActivity @relation(fields: [activityId], references: [id])
+
+  @@unique([organizationId, activityId, userId])
+}
+
+model Policy {
+  id               String                  @id @default(uuid()) @db.Char(36)
+  organizationId   String                  @db.Char(36)
+  title            String
+  content          String                  @db.LongText
+  version          String
+  departmentId     String?                 @db.Char(36)
+  status           String
+  publishedAt      DateTime?
+  createdById      String?                 @db.Char(36)
+  updatedById      String?                 @db.Char(36)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  acknowledgements PolicyAcknowledgement[]
+}
+
+model PolicyAcknowledgement {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  policyId       String   @db.Char(36)
+  userId         String   @db.Char(36)
+  policyVersion  String
+  acknowledgedAt DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  policy         Policy   @relation(fields: [policyId], references: [id])
+
+  @@unique([organizationId, policyId, userId, policyVersion])
+}
+
+model Audit {
+  id             String    @id @default(uuid()) @db.Char(36)
+  organizationId String    @db.Char(36)
+  title          String
+  scope          String    @db.Text
+  departmentId   String?   @db.Char(36)
+  scheduledAt    DateTime?
+  completedAt    DateTime?
+  status         String
+  evidenceUrl    String?
+  findings       Json?
+  createdById    String?   @db.Char(36)
+  updatedById    String?   @db.Char(36)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model ComplianceIssue {
+  id             String    @id @default(uuid()) @db.Char(36)
+  organizationId String    @db.Char(36)
+  title          String?
+  description    String    @db.Text
+  auditId        String?   @db.Char(36)
+  ownerId        String    @db.Char(36)
+  departmentId   String?   @db.Char(36)
+  dueDate        DateTime
+  severity       String
+  status         String
+  evidenceUrl    String?
+  overdueAt      DateTime?
+  createdById    String?   @db.Char(36)
+  updatedById    String?   @db.Char(36)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([organizationId, status, dueDate])
+}
+
+model Challenge {
+  id               String                   @id @default(uuid()) @db.Char(36)
+  organizationId   String                   @db.Char(36)
+  title            String
+  categoryId       String?                  @db.Char(36)
+  description      String                   @db.Text
+  xp               Decimal
+  points           Decimal
+  difficulty       String?
+  evidenceRequired Boolean
+  deadline         DateTime?
+  status           String
+  createdById      String?                  @db.Char(36)
+  updatedById      String?                  @db.Char(36)
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  participations   ChallengeParticipation[]
+}
+
+model ChallengeParticipation {
+  id             String    @id @default(uuid()) @db.Char(36)
+  organizationId String    @db.Char(36)
+  challengeId    String    @db.Char(36)
+  userId         String    @db.Char(36)
+  departmentId   String?   @db.Char(36)
+  status         String
+  joinedAt       DateTime
+  evidenceUrl    String?
+  notes          String?   @db.Text
+  submittedAt    DateTime?
+  reviewedById   String?   @db.Char(36)
+  reviewedAt     DateTime?
+  reviewNote     String?
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  challenge      Challenge @relation(fields: [challengeId], references: [id])
+
+  @@unique([organizationId, challengeId, userId])
+}
+
+model XpLedger {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  userId         String   @db.Char(36)
+  departmentId   String?  @db.Char(36)
+  sourceType     String
+  sourceId       String   @db.Char(36)
+  xpAmount       Decimal  @default(0)
+  pointsAmount   Decimal  @default(0)
+  awardedById    String?  @db.Char(36)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, userId, sourceType, sourceId])
+}
+
+model Badge {
+  id             String      @id @default(uuid()) @db.Char(36)
+  organizationId String      @db.Char(36)
+  name           String
+  description    String
+  iconUrl        String?
+  unlockRule     Json
+  status         String
+  createdById    String?     @db.Char(36)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  userBadges     UserBadge[]
+
+  @@unique([organizationId, name])
+}
+
+model UserBadge {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  userId         String   @db.Char(36)
+  badgeId        String   @db.Char(36)
+  departmentId   String?  @db.Char(36)
+  awardedAt      DateTime
+  awardedById    String?  @db.Char(36)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  badge          Badge    @relation(fields: [badgeId], references: [id])
+
+  @@unique([organizationId, userId, badgeId])
+}
+
+model Reward {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  name           String
+  description    String
+  pointsRequired Decimal
+  stock          Int
+  imageUrl       String?
+  status         String
+  createdById    String?  @db.Char(36)
+  updatedById    String?  @db.Char(36)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model RewardRedemption {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  rewardId       String   @db.Char(36)
+  userId         String   @db.Char(36)
+  departmentId   String?  @db.Char(36)
+  pointsSpent    Decimal
+  status         String
+  redeemedAt     DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Notification {
+  id             String    @id @default(uuid()) @db.Char(36)
+  organizationId String    @db.Char(36)
+  userId         String    @db.Char(36)
+  type           String
+  title          String
+  body           String
+  resourceType   String?
+  resourceId     String?   @db.Char(36)
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([organizationId, userId, readAt, createdAt])
+}
+
+model AuditLog {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  actorId        String?  @db.Char(36)
+  action         String
+  entityType     String
+  entityId       String   @db.Char(36)
+  before         Json?
+  after          Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model RoleRequest {
+  id                String    @id @default(uuid()) @db.Char(36)
+  organizationId    String    @db.Char(36)
+  userId            String    @db.Char(36)
+  requestedRoleCode String
+  evidenceUrl       String?
+  justification     String?
+  status            String
+  requestedAt       DateTime
+  reviewedById      String?   @db.Char(36)
+  reviewedAt        DateTime?
+  reviewNote        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Setting {
+  id             String   @id @default(uuid()) @db.Char(36)
+  organizationId String   @db.Char(36)
+  key            String
+  value          Json
+  createdById    String?  @db.Char(36)
+  updatedById    String?  @db.Char(36)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, key])
+}

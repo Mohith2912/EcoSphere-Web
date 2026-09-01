@@ -5,18 +5,24 @@ import PageHeader from '../../components/dashboard/PageHeader'
 import MetricCard from '../../components/ui/MetricCard'
 import EmptyState from '../../components/ui/EmptyState'
 import StatusPill from '../../components/ui/StatusPill'
+import { useOverview } from '../../hooks/useOverview'
 
 export default function OrganizationDashboard() {
+  const { data, loading, error } = useOverview()
+  const environment = data?.environment
+  const social = data?.social
+  const governance = data?.governance
+  const esg = data?.esg
   return (
     <AppShell navItems={organizationNav} experience="Organization console" user={{ name: 'Navaneeth', role: 'Frontend preview' }}>
       <PageHeader eyebrow="Organization overview" title="Good evening, Navaneeth" description="Your ESG workspace begins with verified organizational activity. Add or import records to start measuring performance."
         actions={<><button className="hidden h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-ink-800 hover:bg-slate-50 sm:flex"><CalendarDays size={16} />This year</button><button className="flex h-10 items-center gap-2 rounded-xl bg-forest-800 px-4 text-sm font-semibold text-white hover:bg-forest-950"><Plus size={16} />Add record</button></>} />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="ESG summary">
-        <MetricCard label="Environmental score" value="Not calculated" helper="Insufficient verified data" icon={Leaf} tone="green" />
-        <MetricCard label="Social score" value="Not calculated" helper="Insufficient verified data" icon={UsersRound} tone="blue" />
-        <MetricCard label="Governance score" value="Not calculated" helper="Insufficient verified data" icon={FileCheck2} tone="violet" />
-        <MetricCard label="Overall ESG score" value="Not calculated" helper="Awaiting module scores" icon={Activity} tone="amber" />
+        <MetricCard label="Environmental score" value={environment?.environmentalScore ?? 'Not calculated'} helper={environment?.scoreMessage || 'Insufficient verified data'} icon={Leaf} tone="green" />
+        <MetricCard label="Social score" value={social?.socialScore ?? 'Not calculated'} helper={social?.scoreMessage || 'Insufficient verified data'} icon={UsersRound} tone="blue" />
+        <MetricCard label="Governance score" value={governance?.governanceScore ?? 'Not calculated'} helper={governance?.scoreMessage || 'Insufficient verified data'} icon={FileCheck2} tone="violet" />
+        <MetricCard label="Overall ESG score" value={esg?.overallScore ?? 'Not calculated'} helper={loading ? 'Loading verified data…' : error || esg?.message || 'Awaiting module scores'} icon={Activity} tone="amber" />
       </section>
 
       <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.7fr)]">
@@ -44,15 +50,15 @@ export default function OrganizationDashboard() {
       <section className="mt-5 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         <article className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 className="text-sm font-semibold">Environmental activity</h2><p className="mt-1 text-xs text-ink-600">Carbon transactions</p></div><span className="rounded-lg bg-emerald-50 p-2 text-emerald-700"><Cloud size={17} /></span></div>
-          <EmptyState compact icon={Cloud} title="No carbon transactions" description="Connect operational data or add an authorized manual record." action="Open environmental" />
+          <EmptyState compact icon={Cloud} title={environment?.carbonTransactionCount ? `${environment.carbonTransactionCount} carbon transactions` : 'No carbon transactions'} description={environment?.carbonTransactionCount ? `${environment.totalEmissions} ${environment.unit} recorded from verified data.` : 'Connect operational data or add an authorized manual record.'} action="Open environmental" />
         </article>
         <article className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 className="text-sm font-semibold">Pending approvals</h2><p className="mt-1 text-xs text-ink-600">Submissions needing review</p></div><span className="rounded-lg bg-blue-50 p-2 text-blue-700"><ClipboardCheck size={17} /></span></div>
-          <EmptyState compact icon={ClipboardCheck} title="All caught up" description="New CSR and challenge submissions will appear here." action="Open approval center" />
+          <EmptyState compact icon={ClipboardCheck} title={social?.pendingApprovalCount ? `${social.pendingApprovalCount} pending approvals` : 'All caught up'} description="New CSR and challenge submissions will appear here." action="Open approval center" />
         </article>
         <article className="card overflow-hidden lg:col-span-2 xl:col-span-1">
           <div className="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 className="text-sm font-semibold">Compliance watch</h2><p className="mt-1 text-xs text-ink-600">Open and overdue issues</p></div><span className="rounded-lg bg-violet-50 p-2 text-violet-700"><ShieldAlert size={17} /></span></div>
-          <EmptyState compact icon={ShieldAlert} title="No compliance issues" description="Issues recorded from audits will be tracked here." action="Open governance" />
+          <EmptyState compact icon={ShieldAlert} title={governance?.complianceIssueCount ? `${governance.complianceIssueCount} compliance issues` : 'No compliance issues'} description={governance?.overdueComplianceCount ? `${governance.overdueComplianceCount} overdue issues require attention.` : 'Issues recorded from audits will be tracked here.'} action="Open governance" />
         </article>
       </section>
 
