@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: ecosphere-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    autoDeployTrigger: commit
+    buildCommand: npm ci && npx prisma generate
+    startCommand: npx prisma db push && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: CORS_ORIGIN
+        sync: false
+      - key: ORGANIZATION_BOOTSTRAP_SECRET
+        generateValue: true

@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import { useState } from 'react'
 import { Bell, ChevronDown, Menu, PanelLeftClose, Search, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import Logo from '../components/brand/Logo'
+=======
+import { useEffect, useState } from 'react'
+import { Bell, ChevronDown, Menu, PanelLeftClose, Search, X } from 'lucide-react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import Logo from '../components/brand/Logo'
+import { getCurrentUser } from '../api/auth'
+>>>>>>> poshika/final-integration
 
 function Sidebar({ mobile = false, collapsed, experience, navItems, onClose, onCollapse }) {
   return (
@@ -32,9 +40,30 @@ function Sidebar({ mobile = false, collapsed, experience, navItems, onClose, onC
   )
 }
 
+<<<<<<< HEAD
 export default function AppShell({ children, navItems, experience, user }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+=======
+export default function AppShell({ children, navItems, experience }) {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [user, setUser] = useState({ name: 'EcoSphere user', role: 'Loading profile…', initials: 'ES' })
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    getCurrentUser().then((profile) => {
+      const name = `${profile.firstName} ${profile.lastName}`.trim()
+      setUser({ name, role: profile.roles?.[0]?.name || 'Employee', initials: `${profile.firstName?.[0] || ''}${profile.lastName?.[0] || ''}` || 'ES' })
+    }).catch(() => {})
+  }, [])
+
+  function logout() {
+    window.localStorage.removeItem('ecosphere_access_token')
+    navigate('/login', { replace: true })
+  }
+>>>>>>> poshika/final-integration
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -46,6 +75,7 @@ export default function AppShell({ children, navItems, experience, user }) {
           <button onClick={() => setMobileOpen(true)} className="mr-3 rounded-xl border border-line p-2.5 text-ink-800 lg:hidden" aria-label="Open navigation"><Menu size={19} /></button>
           <div className="relative hidden max-w-sm flex-1 md:block">
             <Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-600" aria-hidden="true" />
+<<<<<<< HEAD
             <input type="search" placeholder="Search EcoSphere" className="h-10 w-full rounded-xl border border-line bg-canvas pl-10 pr-4 text-sm outline-none placeholder:text-slate-400 focus:border-forest-600 focus:bg-white" />
           </div>
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
@@ -57,6 +87,22 @@ export default function AppShell({ children, navItems, experience, user }) {
               <span className="hidden text-left sm:block"><span className="block text-xs font-semibold text-ink-950">{user.name}</span><span className="block text-[10px] text-ink-600">{user.role}</span></span>
               <ChevronDown size={15} className="hidden text-ink-600 sm:block" />
             </button>
+=======
+            <input type="search" disabled aria-label="Search EcoSphere (coming soon)" title="Search will be enabled when section workflows are available" placeholder="Search coming soon" className="h-10 w-full cursor-not-allowed rounded-xl border border-line bg-canvas pl-10 pr-4 text-sm opacity-70 outline-none placeholder:text-slate-400" />
+          </div>
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            <Link to={experience.startsWith('Organization') ? '/org/notifications' : '/app/notifications'} className="relative grid size-10 place-items-center rounded-xl border border-line text-ink-600 hover:bg-canvas" aria-label="Notifications">
+              <Bell size={18} /><span className="absolute right-2.5 top-2.5 size-1.5 rounded-full bg-amber-500" />
+            </Link>
+            <div className="relative">
+            <button onClick={() => setProfileOpen((value) => !value)} aria-label="Open profile menu" aria-expanded={profileOpen} aria-haspopup="menu" className="flex items-center gap-2 rounded-xl p-1.5 pr-2 hover:bg-canvas">
+              <span className="grid size-8 place-items-center rounded-lg bg-forest-100 text-xs font-bold text-forest-800">{user.initials}</span>
+              <span className="hidden text-left sm:block"><span className="block text-xs font-semibold text-ink-950">{user.name}</span><span className="block text-[10px] text-ink-600">{user.role}</span></span>
+              <ChevronDown size={15} className="hidden text-ink-600 sm:block" />
+            </button>
+            {profileOpen && <div role="menu" className="absolute right-0 top-12 z-30 w-48 rounded-xl border border-line bg-white p-1.5 shadow-lg"><Link role="menuitem" to={experience.startsWith('Organization') ? '/org/profile' : '/app/profile'} className="block rounded-lg px-3 py-2 text-sm text-ink-800 hover:bg-canvas">View profile</Link><button role="menuitem" onClick={logout} className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-700 hover:bg-red-50">Sign out</button></div>}
+            </div>
+>>>>>>> poshika/final-integration
           </div>
         </header>
         <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>

@@ -10,12 +10,15 @@
     "test": "node --test",
     "lint": "eslint src test",
     "check": "node --check src/server.js && node --check src/app.js"
+    ,"db:generate": "prisma generate"
+    ,"db:push": "prisma db push"
+    ,"db:seed": "node prisma/seed.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "@prisma/client": "^6.4.1",
+    "@prisma/client": "6.19.3",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -24,6 +27,7 @@
   },
   "devDependencies": {
     "eslint": "^9.20.1",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "prisma": "6.19.3"
   }
 }

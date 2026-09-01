@@ -1,5 +1,6 @@
 const { ZodError } = require('zod');
 const { AppError } = require('./AppError');
+const { Prisma } = require('@prisma/client');
 
 function asyncHandler(handler) {
   return (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
@@ -24,6 +25,11 @@ function errorHandler(error, _req, res, _next) {
   }
   if (error instanceof AppError) {
     return res.status(error.statusCode).json({ error: { code: error.code, message: error.message, details: error.details } });
+  }
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === 'P2002') return res.status(409).json({ error: { code: 'DUPLICATE_RECORD', message: 'A record with the same unique reference already exists.' } });
+    if (error.code === 'P2003') return res.status(409).json({ error: { code: 'RELATED_RECORD_CONFLICT', message: 'This record is still referenced by another resource.' } });
+    if (error.code === 'P2025') return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'The requested record was not found.' } });
   }
   console.error(error);
   return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'An unexpected server error occurred.' } });

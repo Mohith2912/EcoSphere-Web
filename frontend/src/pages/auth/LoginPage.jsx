@@ -1,12 +1,23 @@
+<<<<<<< HEAD
 import { useState } from 'react'
 import { ArrowRight, BarChart3, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, ShieldCheck } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+=======
+import React, { useState } from 'react'
+import { ArrowRight, BarChart3, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, ShieldCheck } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+>>>>>>> poshika/final-integration
 import Logo from '../../components/brand/Logo'
 import { login } from '../../api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+<<<<<<< HEAD
+=======
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+>>>>>>> poshika/final-integration
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -14,6 +25,7 @@ export default function LoginPage() {
     event.preventDefault()
     setLoading(true)
     setError('')
+<<<<<<< HEAD
     const form = new FormData(event.currentTarget)
     try {
       const response = await login({ email: form.get('email'), password: form.get('password') })
@@ -21,6 +33,14 @@ export default function LoginPage() {
       navigate(response?.experience === 'organization' ? '/org/dashboard' : '/app/dashboard')
     } catch {
       setError('Authentication service is not connected yet. Use a frontend preview below.')
+=======
+    try {
+      const response = await login({ email: email.trim().toLowerCase(), password })
+      if (response?.accessToken) window.localStorage.setItem('ecosphere_access_token', response.accessToken)
+      navigate(response?.defaultRoute || '/app/dashboard')
+    } catch (requestError) {
+      setError(requestError.message || 'Sign-in failed. Check your credentials and try again.')
+>>>>>>> poshika/final-integration
     } finally {
       setLoading(false)
     }
@@ -40,6 +60,7 @@ export default function LoginPage() {
           <form className="mt-9 space-y-5" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="mb-2 block text-sm font-semibold text-ink-800">Organization email</label>
+<<<<<<< HEAD
               <input id="email" name="email" type="email" required autoComplete="email" placeholder="name@organization.com" className="h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-forest-600 focus:ring-4 focus:ring-forest-100" />
             </div>
             <div>
@@ -47,6 +68,15 @@ export default function LoginPage() {
               <div className="relative">
                 <input id="password" name="password" type={showPassword ? 'text' : 'password'} required autoComplete="current-password" placeholder="Enter your password" className="h-12 w-full rounded-xl border border-line bg-white px-4 pr-12 text-sm text-ink-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-forest-600 focus:ring-4 focus:ring-forest-100" />
                 <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-1.5 top-1.5 grid size-9 place-items-center rounded-lg text-ink-600 hover:bg-canvas" aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+=======
+              <input id="email" name="email" type="email" required autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@organization.com" className="h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-forest-600 focus:ring-4 focus:ring-forest-100" />
+            </div>
+            <div>
+              <div className="mb-2 flex items-center justify-between"><label htmlFor="password" className="text-sm font-semibold text-ink-800">Password</label><span className="text-xs text-ink-600" title="Password recovery is not configured in this prototype">Recovery unavailable</span></div>
+              <div className="relative">
+                <input id="password" name="password" type={showPassword ? 'text' : 'password'} required autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" className="h-12 w-full rounded-xl border border-line bg-white px-4 pr-12 text-sm text-ink-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-forest-600 focus:ring-4 focus:ring-forest-100" />
+                <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-1.5 top-1.5 grid size-9 place-items-center rounded-lg text-ink-600 hover:bg-canvas" aria-label={showPassword ? 'Mask entered secret' : 'Reveal entered secret'}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+>>>>>>> poshika/final-integration
               </div>
             </div>
             {error && <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-800">{error}</div>}
@@ -55,6 +85,7 @@ export default function LoginPage() {
             </button>
           </form>
 
+<<<<<<< HEAD
           <div className="mt-7 border-t border-line pt-6">
             <p className="text-center text-[11px] font-bold uppercase tracking-[0.12em] text-ink-600">Frontend preview</p>
             <div className="mt-3 grid grid-cols-2 gap-3">
@@ -63,6 +94,9 @@ export default function LoginPage() {
             </div>
             <p className="mt-4 text-center text-xs text-ink-600">Need access? Contact your organization administrator.</p>
           </div>
+=======
+          <p className="mt-7 border-t border-line pt-6 text-center text-xs text-ink-600">Need access? Contact your organization administrator.</p>
+>>>>>>> poshika/final-integration
         </div>
       </section>
 

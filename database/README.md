@@ -1,5 +1,7 @@
 # EcoSphere Database
 
+> Integration update: `backend/prisma/schema.prisma` is now the canonical executable schema used by Mohith's backend. The SQL in `database/migrations/001_initial_schema.sql` documents Poshika's original relational design and is retained for contribution history; do not apply it after Prisma initialization.
+
 This directory is owned by Poshika and contains the MySQL database foundation for EcoSphere.
 
 ## Requirements
@@ -8,6 +10,20 @@ This directory is owned by Poshika and contains the MySQL database foundation fo
 - A MySQL account allowed to create a database, tables, indexes, triggers, and views
 
 ## Initialize locally
+
+For the integrated application, configure `backend/.env`, then run:
+
+```powershell
+cd backend
+npm install
+npm run db:generate
+npm run db:push
+npm run db:seed
+```
+
+The seed creates development identity/RBAC configuration only and no ESG transactions or metrics.
+
+## Legacy SQL initialization
 
 From PowerShell, run the interactive initializer (it prompts securely for the MySQL password):
 

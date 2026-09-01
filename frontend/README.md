@@ -23,4 +23,8 @@ node .\node_modules\vite\bin\vite.js
 - `/org/dashboard` — organization console overview
 - `/app/dashboard` — employee portal home
 
+<<<<<<< HEAD
 The login page also provides clearly labelled frontend-preview links while authentication is not connected. Business metrics start at zero or “Not calculated” and are never fabricated.
+=======
+Authentication is connected to the EcoSphere API. Protected routes require a JWT, and business metrics start at zero or “Not calculated” rather than using fabricated values.
+>>>>>>> poshika/final-integration
