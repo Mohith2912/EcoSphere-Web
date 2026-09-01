@@ -147,6 +147,7 @@ model CarbonTransaction {
   updatedAt          DateTime @updatedAt
 
   @@index([organizationId, departmentId, occurredAt])
+  @@unique([organizationId, source, reference])
 }
 
 model EnvironmentalGoal {

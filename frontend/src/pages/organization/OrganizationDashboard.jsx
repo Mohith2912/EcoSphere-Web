@@ -6,6 +6,7 @@ import MetricCard from '../../components/ui/MetricCard'
 import EmptyState from '../../components/ui/EmptyState'
 import StatusPill from '../../components/ui/StatusPill'
 import { useOverview } from '../../hooks/useOverview'
+import { Link } from 'react-router-dom'
 
 export default function OrganizationDashboard() {
   const { data, loading, error } = useOverview()
@@ -14,9 +15,9 @@ export default function OrganizationDashboard() {
   const governance = data?.governance
   const esg = data?.esg
   return (
-    <AppShell navItems={organizationNav} experience="Organization console" user={{ name: 'Navaneeth', role: 'Frontend preview' }}>
-      <PageHeader eyebrow="Organization overview" title="Good evening, Navaneeth" description="Your ESG workspace begins with verified organizational activity. Add or import records to start measuring performance."
-        actions={<><button className="hidden h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-ink-800 hover:bg-slate-50 sm:flex"><CalendarDays size={16} />This year</button><button className="flex h-10 items-center gap-2 rounded-xl bg-forest-800 px-4 text-sm font-semibold text-white hover:bg-forest-950"><Plus size={16} />Add record</button></>} />
+    <AppShell navItems={organizationNav} experience="Organization console">
+      <PageHeader eyebrow="Organization overview" title="Organization ESG overview" description="Your ESG workspace begins with verified organizational activity. Add or import records to start measuring performance."
+        actions={<><span title="Additional reporting periods will be available with historical data" className="hidden h-10 cursor-not-allowed items-center gap-2 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-ink-600 opacity-70 sm:flex"><CalendarDays size={16} />This year</span><Link to="/org/environmental" className="flex h-10 items-center gap-2 rounded-xl bg-forest-800 px-4 text-sm font-semibold text-white hover:bg-forest-950"><Plus size={16} />Add record</Link></>} />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="ESG summary">
         <MetricCard label="Environmental score" value={environment?.environmentalScore ?? 'Not calculated'} helper={environment?.scoreMessage || 'Insufficient verified data'} icon={Leaf} tone="green" />
@@ -29,7 +30,7 @@ export default function OrganizationDashboard() {
         <article className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-4 sm:px-6">
             <div><h2 className="text-sm font-semibold text-ink-950">ESG performance</h2><p className="mt-1 text-xs text-ink-600">Module score trend from verified records</p></div>
-            <button className="text-xs font-semibold text-forest-700">View analytics</button>
+            <Link to="/org/environmental" className="text-xs font-semibold text-forest-700">View analytics</Link>
           </div>
           <EmptyState icon={Activity} title="No performance data yet" description="Scores and trends will appear after your organization records sufficient verified ESG activity." />
         </article>
@@ -42,7 +43,7 @@ export default function OrganizationDashboard() {
               { label: 'Departments', state: 'Not started' },
               { label: 'Emission factors', state: 'Not started' },
               { label: 'ESG goals', state: 'Not started' },
-            ].map((item, index) => <button key={item.label} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-canvas"><span className={`grid size-7 place-items-center rounded-lg text-xs font-bold ${index === 0 ? 'bg-forest-100 text-forest-800' : 'bg-slate-100 text-slate-500'}`}>{index + 1}</span><span className="flex-1 text-sm font-medium text-ink-800">{item.label}</span><StatusPill tone={item.tone}>{item.state}</StatusPill></button>)}
+            ].map((item, index) => <Link to={index === 0 ? '/org/settings' : index === 1 ? '/org/users' : '/org/environmental'} key={item.label} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-canvas"><span className={`grid size-7 place-items-center rounded-lg text-xs font-bold ${index === 0 ? 'bg-forest-100 text-forest-800' : 'bg-slate-100 text-slate-500'}`}>{index + 1}</span><span className="flex-1 text-sm font-medium text-ink-800">{item.label}</span><StatusPill tone={item.tone}>{item.state}</StatusPill></Link>)}
           </div>
         </article>
       </section>
@@ -50,21 +51,21 @@ export default function OrganizationDashboard() {
       <section className="mt-5 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         <article className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 className="text-sm font-semibold">Environmental activity</h2><p className="mt-1 text-xs text-ink-600">Carbon transactions</p></div><span className="rounded-lg bg-emerald-50 p-2 text-emerald-700"><Cloud size={17} /></span></div>
-          <EmptyState compact icon={Cloud} title={environment?.carbonTransactionCount ? `${environment.carbonTransactionCount} carbon transactions` : 'No carbon transactions'} description={environment?.carbonTransactionCount ? `${environment.totalEmissions} ${environment.unit} recorded from verified data.` : 'Connect operational data or add an authorized manual record.'} action="Open environmental" />
+          <EmptyState compact icon={Cloud} title={environment?.carbonTransactionCount ? `${environment.carbonTransactionCount} carbon transactions` : 'No carbon transactions'} description={environment?.carbonTransactionCount ? `${environment.totalEmissions} ${environment.unit} recorded from verified data.` : 'Connect operational data or add an authorized manual record.'} action="Open environmental" actionHref="/org/environmental" />
         </article>
         <article className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 className="text-sm font-semibold">Pending approvals</h2><p className="mt-1 text-xs text-ink-600">Submissions needing review</p></div><span className="rounded-lg bg-blue-50 p-2 text-blue-700"><ClipboardCheck size={17} /></span></div>
-          <EmptyState compact icon={ClipboardCheck} title={social?.pendingApprovalCount ? `${social.pendingApprovalCount} pending approvals` : 'All caught up'} description="New CSR and challenge submissions will appear here." action="Open approval center" />
+          <EmptyState compact icon={ClipboardCheck} title={social?.pendingApprovalCount ? `${social.pendingApprovalCount} pending approvals` : 'All caught up'} description="New CSR and challenge submissions will appear here." action="Open approval center" actionHref="/org/approvals" />
         </article>
         <article className="card overflow-hidden lg:col-span-2 xl:col-span-1">
           <div className="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 className="text-sm font-semibold">Compliance watch</h2><p className="mt-1 text-xs text-ink-600">Open and overdue issues</p></div><span className="rounded-lg bg-violet-50 p-2 text-violet-700"><ShieldAlert size={17} /></span></div>
-          <EmptyState compact icon={ShieldAlert} title={governance?.complianceIssueCount ? `${governance.complianceIssueCount} compliance issues` : 'No compliance issues'} description={governance?.overdueComplianceCount ? `${governance.overdueComplianceCount} overdue issues require attention.` : 'Issues recorded from audits will be tracked here.'} action="Open governance" />
+          <EmptyState compact icon={ShieldAlert} title={governance?.complianceIssueCount ? `${governance.complianceIssueCount} compliance issues` : 'No compliance issues'} description={governance?.overdueComplianceCount ? `${governance.overdueComplianceCount} overdue issues require attention.` : 'Issues recorded from audits will be tracked here.'} action="Open governance" actionHref="/org/governance" />
         </article>
       </section>
 
       <section className="mt-5 rounded-2xl border border-forest-100 bg-forest-50 p-5 sm:flex sm:items-center sm:justify-between sm:p-6">
         <div className="flex items-start gap-4"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white text-forest-700 shadow-sm"><Building2 size={20} /></span><div><h2 className="text-sm font-semibold text-forest-950">Start with your organization foundation</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-forest-800/70">Add departments and configure master data before recording ESG activity. This keeps ownership and reporting scopes accurate.</p></div></div>
-        <button className="mt-4 inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-forest-800 sm:ml-5 sm:mt-0">Continue setup<ArrowRight size={16} /></button>
+        <Link to="/org/settings" className="mt-4 inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-forest-800 sm:ml-5 sm:mt-0">Continue setup<ArrowRight size={16} /></Link>
       </section>
     </AppShell>
   )

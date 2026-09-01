@@ -11,7 +11,7 @@ export default function PlaceholderPage({ experience }) {
   const organization = experience === 'organization'
 
   return (
-    <AppShell navItems={organization ? organizationNav : employeeNav} experience={organization ? 'Organization console' : 'Employee portal'} user={{ name: 'Navaneeth', role: 'Frontend preview' }}>
+    <AppShell navItems={organization ? organizationNav : employeeNav} experience={organization ? 'Organization console' : 'Employee portal'}>
       <PageHeader eyebrow={organization ? 'Organization workspace' : 'My EcoSphere'} title={meta.title} description={meta.description} />
       <article className="card overflow-hidden">
         <EmptyState icon={meta.icon} title={`${meta.title} is ready for its workflow`} description="The page foundation is connected to shared navigation and design components. Its API-driven workflow will be implemented in the next frontend slice." />
